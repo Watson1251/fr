@@ -1,0 +1,51 @@
+version: "3.8"  # Specify the Docker Compose version
+
+services:
+
+  db:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfiles/Dockerfile.db
+    ports:
+      - "27018:27017"
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfiles/Dockerfile.backend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - fr-engine
+    environment:
+      - MONGODB_URL=mongodb://db:27017
+      - DF_URL=http://python-app:5000/
+    networks:
+      - app-network
+
+  fr-engine:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfiles/Dockerfile.fr-engine
+    ports:
+      - "8000:8000"
+    # depends_on:
+    #   - db
+    # environment:
+    #   - MONGODB_URL=mongodb://db:27017
+    #   - DF_URL=http://python-app:5000/
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

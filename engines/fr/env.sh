@@ -1,0 +1,1 @@
+conda create -n fr python=3.8
