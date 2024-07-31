@@ -1,4 +1,0 @@
-torch
-transformers
-facenet_pytorch
-opencv-python
