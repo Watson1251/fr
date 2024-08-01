@@ -26,10 +26,9 @@ def main():
     face_extractor = FaceExtractor()
     face_recognition = FaceRecognition()
 
-    # Example of loading an image
-    path = 'dataset/CR7/CR7.jpg'
+    # Example of loading images
+    path = 'dataset/'
     images = data_loader.load_images_from_directory(path)
-    # images = data_loader.load_image(image_path)
 
     # Example of extracting faces
     faces = face_extractor.extract_faces(images)
@@ -37,13 +36,13 @@ def main():
         print("No faces found.")
         return
     
-    for i, face in enumerate(faces):
+    for i, (face, label) in enumerate(faces):
         # Example of preprocessing the image
         preprocessed_face = pre_processor.preprocess_image(face)
 
         # Example of getting embeddings
         embedding = face_recognition.get_embedding(preprocessed_face)
-        print(f"Embedding shape for face {i+1}: {embedding.shape}")
+        print(f"Embedding shape for face {i+1} with label {label}: {embedding.shape}")
 
 if __name__ == "__main__":
     main()
