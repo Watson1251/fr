@@ -5,12 +5,13 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
+    volumes:
+      - ../fr:/fr
     deploy:
       resources:
         reservations:
           devices:
             - driver: nvidia
-              count: 1
               capabilities: [gpu]
     runtime: nvidia
     environment:

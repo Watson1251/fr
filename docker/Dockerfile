@@ -1,5 +1,5 @@
 # Use the official Ubuntu 20.04 image as the base image
-FROM nvidia/cuda:12.5.1-cudnn-devel-ubuntu20.04
+FROM nvidia/cuda:12.2.2-cudnn8-devel-ubuntu20.04
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -29,21 +29,22 @@ RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -
 # Set PATH to include conda
 ENV PATH=/opt/conda/bin:$PATH
 
-# Create a conda environment named "fr" with Python 3.8
-RUN conda init
-
 # Copy the platform directory to the Docker image
+COPY fr /fr
 COPY docker/engine-fr-services.sh /engine-fr-services.sh
-COPY . /fr
 
 WORKDIR /fr
 
-# Activate the "deep" environment and install Python packages
+RUN conda create -y --name fr python=3.8
+
+# Install NVIDIA's version of TensorFlow
+RUN conda install -y -c conda-forge cudatoolkit=12.2 cudnn=8.9 && \
+    pip install tensorflow==2.13.0
+
+# Activate the environment and install Python packages
 RUN /bin/bash -c \
-    "cd /fr && \
-    bash env/env.sh && \
-    bash env/activate.sh && \
-    bash install.sh"
+    "source activate fr && \
+    bash /fr/env/install.sh"
 
 # Make sure the "deep" environment is activated in every shell
 RUN echo "source /opt/conda/bin/activate fr" >> ~/.bashrc
@@ -51,4 +52,4 @@ RUN echo "source /opt/conda/bin/activate fr" >> ~/.bashrc
 # Expose FastAPI application port
 
 # Set the default command
-CMD ["bash"]
+CMD ["/engine-fr-services.sh", "/bin/bash"]

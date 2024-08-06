@@ -1,1 +1,1 @@
-docker run --gpus all -it --rm fr
+docker compose up -d

@@ -1,1 +1,2 @@
-docker build -t fr .
+docker compose down
+docker compose up --build -d
