@@ -29,17 +29,23 @@ RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -
 # Set PATH to include conda
 ENV PATH=/opt/conda/bin:$PATH
 
+# Set the env var to disable oneDNN optimization
+ENV TF_ENABLE_ONEDNN_OPTS=0
+
 # Copy the platform directory to the Docker image
 COPY fr /fr
 COPY docker/engine-fr-services.sh /engine-fr-services.sh
 
 WORKDIR /fr
 
-RUN conda create -y --name fr python=3.8
+RUN conda create -y --name fr python=3.12
 
-# Install NVIDIA's version of TensorFlow
-RUN conda install -y -c conda-forge cudatoolkit=12.2 cudnn=8.9 && \
-    pip install tensorflow==2.13.0
+# install cudnn
+RUN wget https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn-local-repo-ubuntu2004-9.3.0_1.0-1_amd64.deb
+RUN dpkg -i cudnn-local-repo-ubuntu2004-9.3.0_1.0-1_amd64.deb
+RUN cp /var/cudnn-local-repo-ubuntu2004-9.3.0/cudnn-*-keyring.gpg /usr/share/keyrings/
+RUN apt-get update
+RUN apt-get -y install cudnn
 
 # Activate the environment and install Python packages
 RUN /bin/bash -c \
